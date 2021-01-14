@@ -1,0 +1,28 @@
+#Kfolds
+n_slips=5
+kfold=KFold(n_splits=n_slips, random_state=n_seed, shuffle=True)        
+acc=[]
+d={}
+for train_idx, vali_idx in kfold.split(x_train_normalized):
+        
+        #Testar os diferentes modelos sem otimizar e visualizar qual o melhor 
+        models=[LogisticRegression(random_state=n_seed),LinearSVC(random_state=n_seed),SVC(kernel='rbf',random_state=n_seed),RandomForestClassifier(random_state=n_seed)]
+        model_names=['LogisticRegression','LinearSVM','rbfSVM','RandomForestClassifier']
+
+        for model in range(len(models)):
+            clf=models[model]
+            clf.fit(x_train_normalized[train_idx],labels_training[train_idx])
+            pred=clf.predict(x_train_normalized[vali_idx])
+            acc.append(accuracy_score(pred,labels_training[vali_idx]))
+            
+#Average of the accuracy
+acc_average=[]
+for i in range(4):
+    average=(acc[i]+acc[i+4]+acc[i+8]+acc[i+12]+acc[i+16])/n_slips
+    acc_average.append(average)
+    
+d={"Model Option":model_names,'Accuracy':acc_average}
+acc_frame=pd.DataFrame(d)
+print(acc_frame)
+sns.barplot(y='Model Option',x='Accuracy',data=acc_frame)
+sns.factorplot(x='Model Option',y='Accuracy',data=acc_frame,kind='point',size=4,aspect=3.5)

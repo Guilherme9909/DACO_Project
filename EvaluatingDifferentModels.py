@@ -11,8 +11,9 @@ import matplotlib.pyplot as plt
 from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+
 
 #Oversampling
 from imblearn.over_sampling import SMOTE
@@ -23,12 +24,16 @@ from statsmodels.stats.anova import anova_lm
 from sklearn.metrics import accuracy_score,confusion_matrix
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
+
+#evaluation metrics
+from sklearn.metrics import mean_squared_log_error,mean_squared_error, r2_score,mean_absolute_error # for regression
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score  # for classification
 #%% Processamento da data antes de elaboracao de modelos
 
 ##SEED
 n_seed=42
 ##Carregamento e tratamento dos dados referentes Vinhos Brancos do nosso dataset
-data=pd.read_excel (r'C:\Users\HP\Desktop\Bio_20_21_4Ano\DACO\Projeto_WINES\DACO_Wine_DataSet\winequality-white.xlsx')
+data=pd.read_excel (r'C:\Users\HP\Desktop\Bio_20_21_4Ano\DACO\Projeto_WINES\DACO_Project\DACO_Wine_DataSet\winequality-white.xlsx')
 # Separacao entre Parametrso e Etiquetas 
 features = data.drop(['quality'],axis=1)
 labels= data['quality']
@@ -54,17 +59,33 @@ x_train_normalized=scaler.transform(features_training)
 x_test_normalized=scaler.transform(features_testing)
 
 #Kfolds
-kfold=KFold(n_splits=5, random_state=n_seed, shuffle=True)
+n_slips=5
+kfold=KFold(n_splits=n_slips, random_state=n_seed, shuffle=True)        
+acc=[]
+d={}
+model_names=['LogisticRegression','LinearSVM','rbfSVM','RandomForestClassifier']
 for train_idx, vali_idx in kfold.split(x_train_normalized):
-        print(train_idx, vali_idx)
-    
-#Testar os diferentes modelos sem otimizar e visualizar qual o melhor 
-models=[LinearRegression(random_state=n_seed), LogisticRegression(random_state=n_seed),LinearSVC(random_state=n_seed),SVC(kernel='rbf',random_state=n_seed),RandomForestClassifier(random_state=n_seed)]
-model_names=['Linar Regression','LogisticRegression','LinearSVM','rbfSVM''RandomForestClassifier']
+        
+        #Testar os diferentes modelos sem otimizar e visualizar qual o melhor
+        
+        #Otimizaar modelo 1 a 1 
+        
+        #LOGISTIC REGRESSION 
+        LogReg_params={'C':[0.001, 0.01, 0.1, 1, 10, 100, 1000],'penalty':['none','l2'],'solver':[ 'lbfgs', 'newton-cg', 'sag', 'saga']}
+        
+        LogReg=GridSearchCV(estimator=LogisticRegression(random_state=n_seed,multi_class='multinomial',dual=False),param_grid=LogReg_params,scoring='accuracy',cv=5)
+        LogReg.fit(x_train_normalized[train_idx],labels_training[train_idx].ravel())
+        bestLogReg_params=LogReg.best_params_
+        bestAccLogReg=LogReg.best_score_
+        resultsLogReg=LogReg.cv_results_
 
-for model in range(len(models)):
-    clf=models[model]
-    clf.fit(x_train_normalized,labels_training)
-    pred=clf.predict(x_test_normalized)
-    acc.append(accuracy_score(pred,labels_testing))
 
+print(bestLogReg_params)
+print(bestAccLogReg)
+# =============================================================================
+# d={"Model Option":model_names,'Accuracy':bestAccLogReg}
+# acc_frame=pd.DataFrame(d)
+# print(acc_frame)
+# sns.barplot(y='Model Option',x='Accuracy',data=acc_frame)
+# sns.factorplot(x='Model Option',y='Accuracy',data=acc_frame,kind='point',size=4,aspect=3.5)
+# =============================================================================
