@@ -16,6 +16,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Ridge
+from sklearn.neural_network import MLPClassifier
 
 #Oversampling
 from imblearn.over_sampling import SMOTE
