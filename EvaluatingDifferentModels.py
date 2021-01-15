@@ -131,8 +131,26 @@ for train_idx, vali_idx in kfold.split(x_train_normalized):
         print("Fold DONE")
         
 
+#%% Neural Networks
+bestNN_params=[]
+
+I=[1, 5, 10, 20, 50, 80, 100, 130, 150]
+C=['relu', 'logistic', 'tanh']
+S=['lbfgs', 'adam']
+
+for train_idx, vali_idx in kfold.split(x_train_normalized):
+        for c in C:
+            for s in S:
+                for i in I:
+                    NN=MLPClassifier(hidden_layer_sizes=i, activation=c, solver=s, random_state=42, max_iter=500).fit(features_training,labels_training.ravel())
+                    y_predNN=NN.fit(x_train_normalized[train_idx],labels_training[train_idx].ravel()).predict(x_train_normalized[vali_idx])
+                    accuracyNN=accuracy_score(labels_training[vali_idx],y_predNN)
+                    bestNN_params.append([float(accuracyNN), c, s, i])
+
+bestNN_params=np.array(bestNN_params)
 
 #%%
+
 LogReg_accuracy_avg=[]
 for i in range(56):
     average=(float(bestLogReg_params[i,0])+float(bestLogReg_params[i+56,0])+float(bestLogReg_params[i+56*2,0])+float(bestLogReg_params[i+56*3,0])+float(bestLogReg_params[i+56*4,0]))/5
@@ -188,15 +206,31 @@ best_N =bestRandomForest_params [bestIndex,1]
 best_M =bestRandomForest_params [bestIndex,2]      
 print("Best model for Random Forest : n_estimators = " + str(best_N) + " and MaxFeatures = " + str(best_M) +  " with accuracy (%) = " + str(RandomForest_accuracy_avg   [bestIndex]))
       
+NN_accuracy_avg=[]
+for i in range(48):
+    average=(float(bestNN_params[i,0])+float(bestNN_params[i+48,0])+float(bestNN_params[i+48*2,0])+float(bestNN_params[i+48*3,0])+float(bestNN_params[i+48*4,0]))/5
+    NN_accuracy_avg.append(average)
+AccNN=NN_accuracy_avg [np.argmax(NN_accuracy_avg)]
+
+bestIndex=np.argmax(NN_accuracy_avg)
+
+best_C =bestNN_params [bestIndex,1]
+best_S =bestNN_params [bestIndex,2]
+best_I =bestNN_params [bestIndex,3]
+
+print("Best model for NN : Activation = " + str(best_C) + " and Solver = " + str(best_S) + "and HiddenLayerSizes="+ str(best_I) + " with accuracy (%) = " + str(NN_accuracy_avg [bestIndex]))
+
 bestAcc=[]
 bestAcc.append(AccLogReg)
 bestAcc.append(AccLinearSVM)
 bestAcc.append(AccSVM)
 bestAcc.append(AccRandomForest)
+bestAcc.append(AccNN)
+
+model_names=['LogisticRegression','LinearSVM','SVM','RandomForestClassifier','NN'] 
 
 d={"Model Option":model_names,'Accuracy':bestAcc}
 acc_frame=pd.DataFrame(d)
 print(acc_frame)
 sns.barplot(y='Model Option',x='Accuracy',data=acc_frame)
 sns.factorplot(x='Model Option',y='Accuracy',data=acc_frame,kind='point',size=4,aspect=3.5)
-#Best Model
