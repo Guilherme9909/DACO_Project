@@ -13,11 +13,8 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.neural_network import MLPClassifier
 
-
-#Oversampling
-from imblearn.over_sampling import SMOTE
-from imblearn.over_sampling import RandomOverSampler 
 
 #Metricas
 from statsmodels.stats.anova import anova_lm
