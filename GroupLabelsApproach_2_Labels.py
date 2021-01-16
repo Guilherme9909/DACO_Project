@@ -37,10 +37,8 @@ features=data_array[:,0:11]
 labels=data_array[:,11].reshape(-1,1)
 # VINHOS FRACOS
 labels=np.where(labels<5,0,labels);
-#VINHOS Averg
-labels=np.where(labels>4,1,labels);
 #VINHOS BONS
-labels=np.where(labels>6,2,labels);
+labels=np.where(labels>4,1,labels);
 
 # Separaco da data entre 75/25 Treino/Teste
 num_rows, num_cols = features.shape

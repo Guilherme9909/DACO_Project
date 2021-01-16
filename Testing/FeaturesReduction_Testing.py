@@ -27,6 +27,7 @@ from statsmodels.stats.anova import anova_lm
 from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectFromModel
 
 #evaluation metrics
 from sklearn.metrics import mean_squared_log_error,mean_squared_error, r2_score,mean_absolute_error # for regression
@@ -60,6 +61,15 @@ scaler.fit(features_training)
 scaler.fit(features_testing)
 x_train_normalized=scaler.transform(features_training)
 x_test_normalized=scaler.transform(features_testing)
+
+#Remoção de features menos revelantes
+clf=RandomForestClassifier()
+clf = clf.fit(x_train_normalized, labels_training)
+clf.feature_importances_
+model = SelectFromModel(clf, prefit=True)
+x_train_normalized = model.transform(x_train_normalized)
+x_test_normalized = model.transform(x_test_normalized)
+x_train_normalized.shape
 
 
 #Every Model Otimized
@@ -127,9 +137,9 @@ print(RandomForestConfusion)
 
 #NN
 #Parameters
-i=150
+i=80
 c='relu'
-s='lbfgs'
+s='adam'
 NN=MLPClassifier(hidden_layer_sizes=i, activation=c, solver=s, random_state=42, max_iter=500)
 y_predNN = NN.fit(x_train_normalized,labels_training.ravel()).predict(x_test_normalized)
 NNReport=classification_report(labels_testing, y_predNN, labels=[3, 4, 5, 6, 7, 8, 9])
