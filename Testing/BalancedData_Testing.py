@@ -30,7 +30,7 @@ from sklearn.preprocessing import StandardScaler
 ##SEED
 n_seed=42
 ##Carregamento e tratamento dos dados referentes Vinhos Brancos do nosso dataset
-data=pd.read_excel (r'C:\Users\HP\Desktop\Bio_20_21_4Ano\DACO\Projeto_WINES\DACO_Project\DACO_Wine_DataSet\winequality-white.xlsx')
+data=pd.read_excel (r'D:\Universidade\4_Ano_1_Semestre\DACO\Projeto\DACO_Project\DACO_Wine_DataSet\winequality-white.xlsx')
 # Separacao entre Parametrso e Etiquetas 
 features = data.drop(['quality'],axis=1)
 labels= data['quality']
